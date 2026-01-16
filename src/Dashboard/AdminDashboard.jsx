@@ -17,9 +17,9 @@ const AdminDashboard = () => {
       case 'UserManagement':
         return <UserManagement />;
         case 'EventForm':
-          return <EventForm />;
+          return <EventForm setActiveComponent={setActiveComponent}  />;
       default:
-        return <EventManagement  />;
+        return <EventManagement setActiveComponent={setActiveComponent}   />;
     }
   };
 

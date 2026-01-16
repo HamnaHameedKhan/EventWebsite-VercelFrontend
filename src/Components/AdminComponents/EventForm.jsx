@@ -12,8 +12,10 @@ import {
   resetForm,
 } from '../../redux/eventSlice';
 
+const EventForm = ({setActiveComponent}) => {
 
-const EventForm = ({ setActiveComponent}) => {
+    // const [activeComponent, setActiveComponent] = useState('EventManagement');
+
   const dispatch = useDispatch();
   const { isEditing, editEventId, formData } = useSelector((state) => state.event);
 
@@ -24,12 +26,20 @@ const EventForm = ({ setActiveComponent}) => {
     time: '',
     location: '',
     price: '',
-    image: null,
+    image: null, // this will hold new uploaded file
+    imageName: '', // this will hold current image name for display
   });
 
+  const [loading, setLoading] = useState(false);
+
+  // Populate form on edit
   useEffect(() => {
-    if (isEditing) {
-      setFormState(formData);
+    if (isEditing && formData) {
+      setFormState({
+        ...formData,
+        image: null, // user can optionally upload new file
+        imageName: formData.image ? getFileName(formData.image) : '',
+      });
     } else {
       setFormState({
         title: '',
@@ -39,22 +49,40 @@ const EventForm = ({ setActiveComponent}) => {
         location: '',
         price: '',
         image: null,
+        imageName: '',
       });
     }
   }, [isEditing, formData]);
+
+  // Helper to extract file name from URL
+  function getFileName(url) {
+    if (!url) return '';
+    return url.split('/').pop();
+  }
 
   const handleInputChange = (e) => {
     setFormState({ ...formState, [e.target.name]: e.target.value });
   };
 
   const handleImageChange = (e) => {
-    setFormState({ ...formState, image: e.target.files[0] });
+    const file = e.target.files[0];
+    if (file) {
+      setFormState({ ...formState, image: file, imageName: file.name });
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formState.title || !formState.description || !formState.location || !formState.time || !formState.price || !formState.image || !formState.date) {
+    // Validation: do not require image if editing
+    if (
+      !formState.title ||
+      !formState.description ||
+      !formState.location ||
+      !formState.time ||
+      !formState.price ||
+      !formState.date
+    ) {
       toast.error('Please fill all the fields');
       return;
     }
@@ -66,6 +94,7 @@ const EventForm = ({ setActiveComponent}) => {
     formDataToSend.append('time', formState.time);
     formDataToSend.append('price', formState.price);
     formDataToSend.append('date', formState.date);
+
     if (formState.image) {
       formDataToSend.append('image', formState.image);
     }
@@ -77,29 +106,37 @@ const EventForm = ({ setActiveComponent}) => {
     };
 
     try {
+      setLoading(true);
       if (isEditing) {
         dispatch(editEventRequest());
         const res = await axios.put(`/update/${editEventId}`, formDataToSend, config);
         dispatch(editEventSuccess(res.data));
         toast.success('Event updated successfully');
+        setActiveComponent('EventManagement');
       } else {
         dispatch(createEventRequest());
         const res = await axios.post('/create', formDataToSend, config);
         dispatch(createEventSuccess(res.data));
-        // setActiveComponent('EventManagement')
         toast.success('Event created successfully');
-        
       }
       dispatch(resetForm());
+      setActiveComponent('EventManagement');
     } catch (error) {
       console.error(error);
       if (isEditing) {
-        dispatch(editEventFailure(error.response.data.msg));
-        toast.error('Error updating event');
-      } else {
-        dispatch(createEventFailure(error));
-        toast.error('Error creating event');
-      }
+  const errorMessage =
+    error?.response?.data?.msg || error.message || 'Something went wrong';
+  dispatch(editEventFailure(errorMessage));
+  toast.error(errorMessage);
+}else {
+  // Only store a string message, not the whole AxiosError
+  const errorMessage =
+    error?.response?.data?.msg || error.message || 'Something went wrong';
+  dispatch(createEventFailure(errorMessage));
+  toast.error(errorMessage);
+}
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -144,12 +181,19 @@ const EventForm = ({ setActiveComponent}) => {
           placeholder="Ticket Price"
           className="p-2 border rounded"
         />
-        <input
-          type="file"
-          name="image"
-          onChange={handleImageChange}
-          className="p-2 border rounded"
-        />
+        <div>
+          <input
+            type="file"
+            name="image"
+            onChange={handleImageChange}
+            className="p-2 border rounded w-full"
+          />
+          {formState.imageName && (
+            <p className="text-gray-600 mt-1 text-sm">
+              Current file: {formState.imageName}
+            </p>
+          )}
+        </div>
       </div>
       <textarea
         name="description"
@@ -158,8 +202,38 @@ const EventForm = ({ setActiveComponent}) => {
         placeholder="Event Description"
         className="w-full p-2 border rounded mb-4"
       ></textarea>
-      <button type="submit" className="bg-primary text-white px-4 py-2 rounded">
-        {isEditing ? 'Update Event' : 'Create Event'}
+      <button
+        type="submit"
+        className={`bg-primary text-white px-4 py-2 rounded flex items-center justify-center`}
+        disabled={loading}
+      >
+        {loading ? (
+          <>
+            <svg
+              className="animate-spin h-5 w-5 mr-2 text-white"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                className="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="4"
+              ></circle>
+              <path
+                className="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8v8H4z"
+              ></path>
+            </svg>
+            {isEditing ? 'Updating...' : 'Creating...'}
+          </>
+        ) : (
+          isEditing ? 'Update Event' : 'Create Event'
+        )}
       </button>
     </form>
   );

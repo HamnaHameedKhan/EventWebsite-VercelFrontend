@@ -46,7 +46,7 @@ const BookingCard = () => {
   return (
     <div>
       {loading && <p>Loading...</p>}
-      {error && <p>Error: {error}</p>}
+      {/* {error && <p>Error: {error}</p>} */}
       {userBookings.length === 0 ? (
         <p>No bookings found.</p>
       ) : (

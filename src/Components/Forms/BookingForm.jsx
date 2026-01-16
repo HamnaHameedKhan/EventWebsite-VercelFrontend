@@ -56,11 +56,11 @@ const BookingForm = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto bg-primary p-8 rounded-lg shadow-lg ">
-      <h2 className="text-2xl font-bold text-center mb-6 text-background">Book Your Tickets</h2>
+    <div className="max-w-lg mx-auto p-8 ">
+      <h2 className="text-2xl font-bold text-center mb-6 text-black">Book Your Tickets</h2>
       <form onSubmit={handleSubmit}>
         <div className="mb-4">
-          <label className="block text-secondary text-sm font-bold mb-2" htmlFor="name">
+          <label className="block text-black text-sm font-bold mb-2" htmlFor="name">
             Full Name
           </label>
           <input
@@ -74,7 +74,7 @@ const BookingForm = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-secondary text-sm font-bold mb-2" htmlFor="email">
+          <label className="block text-black text-sm font-bold mb-2" htmlFor="email">
             Email Address
           </label>
           <input
@@ -88,7 +88,7 @@ const BookingForm = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-secondary text-sm font-bold mb-2" htmlFor="phone">
+          <label className="block text-black text-sm font-bold mb-2" htmlFor="phone">
             Phone Number
           </label>
           <input
@@ -102,7 +102,7 @@ const BookingForm = () => {
           />
         </div>
         <div className="mb-4">
-          <label className="block text-secondary text-sm font-bold mb-2" htmlFor="numberOfTickets">
+          <label className="block text-black text-sm font-bold mb-2" htmlFor="numberOfTickets">
             Number of Tickets
           </label>
           <input
@@ -131,7 +131,7 @@ const BookingForm = () => {
         <div className="text-center">
           <button
             type="submit"
-            className="bg-secondary text-white py-2 px-4 rounded-lg hover:bg-white hover:text-secondary transition duration-300"
+            className="bg-secondary text-white py-2 px-4 rounded-lg hover:bg-black hover:text-secondary transition duration-300"
           >
             Submit
           </button>

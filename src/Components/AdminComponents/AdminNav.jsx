@@ -3,7 +3,7 @@ import { FaCalendarAlt, FaClipboardList, FaUsers,FaPlus } from 'react-icons/fa';
 
 const AdminNav = ({ setActiveComponent }) => {
   return (
-    <div className="w-64 bg-secondary text-white min-h-screen p-6">
+    <div className="min-h-screen bg-secondary text-white p-6 w-72 flex-shrink-0">
       <h2 className="text-2xl font-bold mb-6">Admin Dashboard</h2>
       <nav>
         <ul>

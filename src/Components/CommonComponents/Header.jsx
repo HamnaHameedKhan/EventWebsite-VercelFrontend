@@ -48,18 +48,18 @@ const Header = () => {
         <div className="hidden md:flex space-x-4">
           {isAuthenticated ? (
             <>
-            <button onClick={handleLogout} className="py-2 px-4 bg-secondary text-background rounded hover:bg-tertiary hover:text-secondary">
+            <button onClick={handleLogout} className="py-2 px-4 bg-secondary text-background rounded hover:bg-white hover:text-secondary">
               Logout
             </button>
 
-            <button onClick={dashBoard} className="block w-full py-2 px-4 bg-secondary text-background text-sm hover:bg-tertiary hover:text-secondary">
+            <button onClick={dashBoard} className="block w-full py-2 px-4 bg-secondary text-background text-sm hover:bg-white hover:text-secondary">
              DashBoard
             </button>
 
             </>
           ) : (
             <>
-              <Link to="/login" className="py-2 px-4 bg-secondary text-background rounded hover:bg-tertiary hover:text-secondary">
+              <Link to="/login" className="py-2 px-4 bg-secondary text-background rounded hover:bg-white hover:text-black">
                 Login
               </Link>
               <Link to="/signup" className="py-2 px-4 bg-background text-tertiary rounded hover:bg-secondary hover:text-tertiary">

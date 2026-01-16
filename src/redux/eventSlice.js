@@ -50,6 +50,8 @@ const eventSlice = createSlice({
       state.events = action.payload;
       state.error = null;
       state.success = true;
+      state.loading = false; 
+
     },
     deleteEventStart: (state) => {
       state.loading = true;

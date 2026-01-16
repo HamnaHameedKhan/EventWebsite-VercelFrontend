@@ -1,125 +1,149 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import { ToastContainer,toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-import axios from '../../axios/axios'
-import { loginFailed, loginSuccess } from '../../redux/authSlice';
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import axios from "../../axios/axios";
+import { loginFailed, loginSuccess } from "../../redux/authSlice";
+import login from "../../assets/images/login.png";
 
 const LoginForm = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
-  const dispatch=useDispatch()
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loading, setLoading] = useState(false);
 
- const [FormData,setFormData]=useState({
-   email:'',
-   password:''
- })
 
- const {email,password}=FormData
+  const { email, password } = formData;
 
- const handleChange=(e)=>{
-    setFormData({...FormData,[e.target.name]:e.target.value})
- }
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
- const navigate=useNavigate()
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-   
-    if(!email || !password){
+
+    if (!email || !password) {
       toast.error("All fields are required");
       return;
     }
 
-    const config={headers:{
-      'Content-Type': 'application/json'
-    }}
+    try {
+          setLoading(true);
 
-    const body=JSON.stringify({email,password})
-    
-    
-  try {
-    const res = await axios.post('/login', body, config);
-    const { token, user } = res.data;
+      const res = await axios.post("/login", { email, password });
+      const { token, user } = res.data;
 
-    // Store token and user data
-    localStorage.setItem('token', token);
-    dispatch(loginSuccess(user));
+      localStorage.setItem("token", token);
+      dispatch(loginSuccess(user));
 
-    if (user.isAdmin) {
-      toast.success('Admin Login Successfully');
-      setTimeout(()=>{
-        navigate('/admin');
-      },2000)
-      
-    } else {
-      toast.success('Login Successfully');
-      setTimeout(()=>{
-        navigate('/');
-      },2000)
-      
-    }
+      toast.success("Login successful");
 
-    
-  } catch (error) {
-        dispatch(loginFailed(error.response.data.msg))
-        toast.error(error.response.data.msg)
-    }
-
+      setTimeout(() => {
+        navigate(user.isAdmin ? "/admin" : "/");
+      }, 1500);
+    } catch (error) {
+      dispatch(loginFailed(error?.response?.data?.msg));
+      toast.error(error?.response?.data?.msg || "Login failed");
+    } finally {
+    setLoading(false);
+  }
   };
 
-  
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-circular-gradient">
-    <ToastContainer/>
-      <div className="bg-tertiary p-8 rounded-lg shadow-lg max-w-md w-full">
-        <h2 className="text-3xl font-bold mb-6 text-secondary text-center">Login to EventEase</h2>
-        <form onSubmit={handleSubmit}>
+  <div className="h-screen w-full flex">
+    <ToastContainer />
+
+    {/* LEFT SIDE — LOGIN FORM */}
+    <div className="w-full md:w-1/2 flex items-center justify-center px-8">
+      <div className="w-full max-w-md text-center">
+        
+        {/* LOGO / BRAND */}
+        <Link to="/">
+        <h2 className="text-4xl font-bold mb-2 text-secondary">EventEase</h2>
+        </Link>
+        {/* WELCOME TEXT */}
+        <h3 className="text-xl font-semibold mt-6 mb-2">
+          Welcome back
+        </h3>
+
+        <p className="text-gray-500 mb-8">
+          Enter your credentials to access your account.
+        </p>
+
+        <form onSubmit={handleSubmit} className="text-left">
           <div className="mb-4">
-            <label htmlFor="email" className="block text-secondary text-sm font-medium mb-2">
-              Email
+            <label className="block mb-1 text-sm font-medium">
+              Email Address
             </label>
             <input
               type="email"
-              id="email"
-              name='email'
+              name="email"
               value={email}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-           
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
-          <div className="mb-6">
-            <label htmlFor="password" className="block text-secondary text-sm font-medium mb-2">
+
+          <div className="mb-4">
+            <label className="block mb-1 text-sm font-medium">
               Password
             </label>
             <input
               type="password"
-              id="password"
-              name='password'
+              name="password"
               value={password}
               onChange={handleChange}
-              className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-            
+              className="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-black"
             />
           </div>
+
+          <div className="text-right mb-6">
+            <Link
+              to="/forgot-password"
+              className="text-sm text-secondary hover:text-black"
+            >
+              Forgot password?
+            </Link>
+          </div>
+
           <button
-            type="submit"
-            className="w-full bg-secondary text-tertiary py-2 rounded-lg hover:bg-primary hover:text-background transition-colors"
-          >
-            Login
-          </button>
+  type="submit"
+  disabled={loading}
+  className={`w-full py-3 rounded-lg transition 
+    ${loading ? "bg-gray-400 cursor-not-allowed" : "bg-black hover:bg-secondary text-white"}
+  `}
+>
+  {loading ? "Signing in..." : "Sign in"}
+</button>
         </form>
-        <p className="mt-4 text-background text-sm">
-          Don't have an account?{' '}
-          <a href="/signup" className="text-secondary hover:text-yellow-200">
-            Sign up here
-          </a>
+
+        {/* SIGN UP LINE */}
+        <p className="mt-6 text-sm text-gray-500">
+          Don’t have an account?{" "}
+          <Link to="/signup" className="font-semibold text-secondary">
+            Sign up
+          </Link>
         </p>
       </div>
     </div>
-  );
+
+    {/* RIGHT SIDE — IMAGE */}
+    <div className="hidden md:block w-1/2 h-full">
+      <img
+        src={login}
+        alt="Event Hall"
+        className="w-full h-full object-cover"
+      />
+    </div>
+  </div>
+);
+
+
 };
 
 export default LoginForm;

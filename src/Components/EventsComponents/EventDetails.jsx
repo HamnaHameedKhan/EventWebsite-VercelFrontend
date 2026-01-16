@@ -1,32 +1,29 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FaCalendarAlt, FaClock, FaMapMarkerAlt, FaDollarSign } from 'react-icons/fa';
 import BookingForm from '../Forms/BookingForm'; // Import the BookingForm component
 import { useDispatch, useSelector } from 'react-redux';
-import axios from '../../axios/axios'
+import axios from '../../axios/axios';
 import { getSingleEvent } from '../../redux/eventSlice';
 import { useParams } from 'react-router-dom';
 
-
 const EventDetailsPage = () => {
+  const dispatch = useDispatch();
+  const event = useSelector((state) => state.event.singleEvent);
+  const { id } = useParams();
 
-  const dispatch=useDispatch()
-  const event=useSelector((state)=>state.event.singleEvent)
-  const {id}=useParams()
- 
-
-  const fetchEvent=async()=>{
+  const fetchEvent = async () => {
     try {
-      const res=await axios.get(`/singleEvent/${id}`)
-      dispatch(getSingleEvent(res.data))
-      console.log(res.data)
-      
+      const res = await axios.get(`/singleEvent/${id}`);
+      dispatch(getSingleEvent(res.data));
+      console.log(res.data);
     } catch (error) {
-      console.error("Error fetching event:", error);
+      console.error('Error fetching event:', error);
     }
-  }
+  };
+
   useEffect(() => {
     fetchEvent();
-  }, []);
+  }, [id]);
 
   const [isBookingFormVisible, setIsBookingFormVisible] = useState(false);
 
@@ -82,7 +79,30 @@ const EventDetailsPage = () => {
             </button>
           </div>
         </div>
-        {isBookingFormVisible && <BookingForm />} {/* Conditionally render the BookingForm */}
+
+        {/* Modal Booking Form */}
+        {isBookingFormVisible && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+            onClick={handleToggleBookingForm} // click on overlay closes modal
+          >
+            <div
+              className="bg-gray-100 rounded-lg w-11/12 max-w-lg p-6 relative shadow-lg"
+              onClick={(e) => e.stopPropagation()} // prevent modal from closing on click inside
+            >
+              {/* Close Button */}
+              <button
+                onClick={handleToggleBookingForm}
+                className="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold"
+              >
+                &times;
+              </button>
+
+              {/* Booking Form Component */}
+              <BookingForm />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
